@@ -2,100 +2,74 @@
 title: API Reference
 
 language_tabs: # must be one of https://git.io/vQNgJ
-  - shell
-  - python
-  - javascript
+
+- shell
+- python
 
 toc_footers:
-  - <a href='https://github.com/slatedocs/slate'>Documentation Powered by Slate</a>
+
+- <a href='https://github.com/slatedocs/slate'>Documentation Powered by Slate</a>
 
 includes:
-  - errors
-  - aup
+
+- errors
+- aup
 
 search: true
 
 code_clipboard: true
 
 meta:
-  - name: description
-    content: Documentation for the Corporate Clash APIs
+
+- name: description
+  content: Documentation for the Corporate Clash APIs
+
 ---
 
 # Introduction
 
-Welcome to the Corporate Clash API Documentation! This will include documentation detailing launcher APIs and other public APIs for your usage.
+Welcome to the Corporate Clash API Documentation! This will include documentation detailing launcher APIs and other
+public APIs for your usage.
 
-Please read the Acceptable Usage Policy at the bottom of this document before using it. We want to ensure our users' data is safe and our services are protected from abuse, which will keep our costs down and keep Corporate Clash running!
+Please read the Acceptable Usage Policy at the bottom of this document before using it. We want to ensure our users'
+data is safe and our services are protected from abuse, which will keep our costs down and keep Corporate Clash running!
 
-# Authentication
+# User-agent requirement
 
-> To authorize, use this code:
+> Please set an appropriate user-agent header:
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
+```
+user-agent: MyCoolSite/1.0.0
 ```
 
-```python
-import kittn
+> If you'd like to include extra info, feel free, but keep it under 80 characters:
 
-api = kittn.authorize('meowmeowmeow')
+```
+user-agent: example.com/1.0.0 python-requests/2.27.1
+```
+
+Please include an identifiable user-agent with requests. We don't gate the user-agent besides preventing fake scrapers (
+eg. pretending to be GoogleBot). If we can't get in touch with you and your client is abusing our API we might block it
+to ensure functionality on the rest of the service.
+
+# V1: API Version 1
+
+These APIs don't require authentication, as they're open access.
+
+# V1: Districts
+
+## Get Districts
+
+```python
+import requests
+
+r = requests.get('https://corporateclash.net/api/v1/districts.js')
+out = r.json()
 ```
 
 ```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here" \
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-```
-
-> Make sure to replace `meowmeowmeow` with your API key.
-
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
-
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
-
-# Kittens
-
-## Get All Kittens
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
-
-```shell
-curl "http://example.com/api/kittens" \
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
+curl "https://corporateclash.net/api/v1/districts.js" \
+  -H "User-Agent: my-shell/1"
 ```
 
 > The above command returns JSON structured like this:
@@ -103,140 +77,53 @@ let kittens = api.kittens.get();
 ```json
 [
   {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
+    "name": "Cupcake Cove",
+    "online": true,
+    "population": 39,
+    "invasion_online": false,
+    "last_update": 1651361858,
+    "cogs_attacking": "None",
+    "count_defeated": 0,
+    "count_total": 0,
+    "remaining_time": 0
   },
   {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
+    "name": "Kazoo Kanyon",
+    "online": true,
+    "population": 37,
+    "invasion_online": true,
+    "last_update": 1651361858,
+    "cogs_attacking": "Middleman",
+    "count_defeated": 180,
+    "count_total": 4913,
+    "remaining_time": 2082
   }
 ]
 ```
 
-This endpoint retrieves all kittens.
+This endpoint retrieves all districts connected to the server.
 
 ### HTTP Request
 
-`GET http://example.com/api/kittens`
+`GET https://corporateclash.net/api/v1/districts.js`
 
-### Query Parameters
+### Return Object
 
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
+Returns an array of district objects, defined as:
+
+| Parameter       | type    | Description                                                                                                                       |
+|-----------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|
+| name            | string  | The name of the district                                                                                                          |
+| online          | boolean | Whether or not the district is online / available. This might be 'false' if the district is scheduled for/undergoing maintenance. |
+| population      | integer | The amount of toons in the district                                                                                               |
+| invasion_online | boolean | Whether or not an invasion is active.                                                                                             |
+| last_update     | integer | The last time the district was updated. This generally requires a value change to update, eg. toons leaving/joining the district. |
+| cogs_attacking  | string  | The name of the cog invading the district.                                                                                        |
+| count_defeated  | integer | The number of cogs defeated for the current invasion.                                                                             |
+| count_total     | integer | How many cogs need to be defeated to end the invasion early.                                                                      |
+| remaining_time  | integer | The amount of seconds before the invasion ends.                                                                                   |
 
 <aside class="success">
-Remember — a happy kitten is an authenticated kitten!
+Please only do max 1 request per 5 seconds. If using client-sided via CORS, please don't try to cache bust, as the Cloudflare cache is set to 10 seconds regardless.
 </aside>
-
-## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2" \
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
-}
-```
-
-This endpoint retrieves a specific kitten.
-
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
-
-### HTTP Request
-
-`GET http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
-
-## Delete a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2" \
-  -X DELETE \
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.delete(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "deleted" : ":("
-}
-```
-
-This endpoint deletes a specific kitten.
-
-### HTTP Request
-
-`DELETE http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to delete
 
