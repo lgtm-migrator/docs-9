@@ -7,7 +7,7 @@ We're still working on the API Documentation! Check back soon!
 
 ## Development
 
-All files for the API itself are in source/
+All documentation for the API itself is in [index.html.md](source/index.html.md).
 
 ### Getting Started with Slate
 
