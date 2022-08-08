@@ -50,7 +50,7 @@ user-agent: example.com/1.0.0 python-requests/2.27.1
 
 Please include an identifiable user-agent with requests. We don't gate the user-agent besides preventing fake scrapers (
 eg. pretending to be GoogleBot). If we can't get in touch with you and your client is abusing our API we might block it
-to ensure functionality on the rest of the service.
+to ensure functionality for other API consumers.
 
 # V1: API Version 1
 
@@ -72,7 +72,7 @@ curl "https://corporateclash.net/api/v1/districts.js" \
   -H "User-Agent: my-shell/1"
 ```
 
-> The above command returns JSON structured like this:
+> JSON:
 
 ```json
 [
@@ -101,7 +101,7 @@ curl "https://corporateclash.net/api/v1/districts.js" \
 ]
 ```
 
-This endpoint retrieves all districts connected to the server.
+This endpoint retrieves all districts connected to the server. 
 
 ### HTTP Request
 
@@ -109,7 +109,7 @@ This endpoint retrieves all districts connected to the server.
 
 ### Return Object
 
-Returns an array of district objects, defined as:
+Returns **an array** of district objects, defined as:
 
 | Parameter       | type    | Description                                                                                                                       |
 |-----------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|
@@ -124,6 +124,51 @@ Returns an array of district objects, defined as:
 | remaining_time  | integer | The amount of seconds before the invasion ends.                                                                                   |
 
 <aside class="success">
-Please only do max 1 request per 5 seconds. If using client-sided via CORS, please don't try to cache bust, as the Cloudflare cache is set to 10 seconds regardless.
+Please only perform this API call at a maximum of once every 5 seconds. If using client-sided via CORS, please don't try to cache bust, as the Cloudflare cache is set to 10 seconds regardless.
 </aside>
+
+
+# V1: Game Info
+
+## Get Game Info
+
+```python
+import requests
+
+r = requests.get('https://corporateclash.net/api/v1/game_info.js')
+out = r.json()
+```
+
+```shell
+curl "https://corporateclash.net/api/v1/game_info.js" \
+  -H "User-Agent: my-shell/1"
+```
+
+> Returned JSON:
+
+```json
+{
+  "num_toons": 383,
+  "production_closed": false,
+  "production_closed_reason": "We're performing maintenance",
+  "version": "v1.2.7.9"
+}
+```
+
+This endpoint retrieves info about the live game
+
+### HTTP Request
+
+`GET https://corporateclash.net/api/v1/game_info.js`
+
+### Return Object
+
+| Parameter                       | type    | Description                                                                                                                       |
+|---------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|
+| num_toons                       | integer | The number of toons online; player count is limited to the number of toons in-game and does not include those in the main menu    |
+| production_closed               | boolean | Whether or not logging into the game is currently possible for a regular user                                                     |
+| production_closed_reason        | integer | An english reason for the game being closed                                                                                       |
+| version                         | boolean | Current version of the game; pulled from the latest version in [CorporateClash/Changelogs](https://github.com/CorporateClash/Changelogs/blob/master/releases/all.json) |
+
+
 
