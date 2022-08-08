@@ -321,20 +321,32 @@
           </li>
           <li>
             <a href="#v1-api-version-1" class="toc-h1 toc-link" data-title="V1: API Version 1">V1: API Version 1</a>
-          </li>
-          <li>
-            <a href="#v1-districts" class="toc-h1 toc-link" data-title="V1: Districts">V1: Districts</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#get-districts" class="toc-h2 toc-link" data-title="Get Districts">Get Districts</a>
+                    <a href="#v1-districts" class="toc-h2 toc-link" data-title="V1: Districts">V1: Districts</a>
+                  </li>
+                  <li>
+                    <a href="#v1-game-info" class="toc-h2 toc-link" data-title="V1 Game Info">V1 Game Info</a>
                   </li>
               </ul>
           </li>
           <li>
-            <a href="#v1-game-info" class="toc-h1 toc-link" data-title="V1: Game Info">V1: Game Info</a>
+            <a href="#launcher-v1-api" class="toc-h1 toc-link" data-title="Launcher V1 API">Launcher V1 API</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#get-game-info" class="toc-h2 toc-link" data-title="Get Game Info">Get Game Info</a>
+                    <a href="#post-register" class="toc-h2 toc-link" data-title="POST Register">POST Register</a>
+                  </li>
+                  <li>
+                    <a href="#launcher-errors-when-token-is-revoked" class="toc-h2 toc-link" data-title="Launcher errors when token is revoked">Launcher errors when token is revoked</a>
+                  </li>
+                  <li>
+                    <a href="#post-login" class="toc-h2 toc-link" data-title="POST Login">POST Login</a>
+                  </li>
+                  <li>
+                    <a href="#get-metadata" class="toc-h2 toc-link" data-title="GET Metadata">GET Metadata</a>
+                  </li>
+                  <li>
+                    <a href="#post-revoke-current-token" class="toc-h2 toc-link" data-title="POST Revoke Current Token">POST Revoke Current Token</a>
                   </li>
               </ul>
           </li>
@@ -358,6 +370,8 @@ public APIs for your usage.</p>
 
 <p>Please read the Acceptable Usage Policy at the bottom of this document before using it. We want to ensure our users&#39;
 data is safe and our services are protected from abuse, which will keep our costs down and keep Corporate Clash running!</p>
+
+<p>Note: manifest documentation to allow third-party launchers to download our game files is planned.</p>
 <h1 id='user-agent-requirement'>User-agent requirement</h1>
 <blockquote>
 <p>Please set an appropriate user-agent header:</p>
@@ -374,7 +388,7 @@ eg. pretending to be GoogleBot). If we can&#39;t get in touch with you and your 
 to ensure functionality for other API consumers.</p>
 <h1 id='v1-api-version-1'>V1: API Version 1</h1>
 <p>These APIs don&#39;t require authentication, as they&#39;re open access.</p>
-<h1 id='v1-districts'>V1: Districts</h1><h2 id='get-districts'>Get Districts</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<h2 id='v1-districts'>V1: Districts</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
 
 <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'https://corporateclash.net/api/v1/districts.js'</span><span class="p">)</span>
 <span class="n">out</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">json</span><span class="p">()</span>
@@ -472,7 +486,7 @@ to ensure functionality for other API consumers.</p>
 <aside class="success">
 Please only perform this API call at a maximum of once every 5 seconds. If using client-sided via CORS, please don't try to cache bust, as the Cloudflare cache is set to 10 seconds regardless.
 </aside>
-<h1 id='v1-game-info'>V1: Game Info</h1><h2 id='get-game-info'>Get Game Info</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<h2 id='v1-game-info'>V1 Game Info</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
 
 <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'https://corporateclash.net/api/v1/game_info.js'</span><span class="p">)</span>
 <span class="n">out</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">json</span><span class="p">()</span>
@@ -521,6 +535,402 @@ Please only perform this API call at a maximum of once every 5 seconds. If using
 <td>Current version of the game; pulled from the latest version in <a href="https://github.com/CorporateClash/Changelogs/blob/master/releases/all.json">CorporateClash/Changelogs</a></td>
 </tr>
 </tbody></table>
+<h1 id='launcher-v1-api'>Launcher V1 API</h1>
+<p>These APIs are the primary method for logging users into the game.</p>
+
+<p>For these APIs, we only allow client implementations that do not store the password, and store login tokens locally on users&#39; computer. If malicious launchers are created that consume these APIs, we might shut off third party access and implement technical measures to prevent third-party usage.</p>
+<h2 id='post-register'>POST Register</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">username</span> <span class="o">=</span> <span class="s">'judge'</span>
+<span class="n">password</span> <span class="o">=</span> <span class="s">''</span>
+<span class="n">friendly</span> <span class="o">=</span> <span class="s">'my 2022 laptop'</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">"https://corporateclash.net/api/launcher/v1/register"</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span>
+    <span class="s">'username'</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span>
+    <span class="s">'password'</span><span class="p">:</span> <span class="n">password</span><span class="p">,</span>
+    <span class="s">'friendly'</span><span class="p">:</span> <span class="n">friendlyname</span>
+<span class="p">})</span>
+
+</code></pre></div><div class="highlight"><pre class="highlight shell tab-shell"><code><span class="c"># curl 7.82.0 introduced the --json option which sends `application/json` for the headers `content-type` and `accept`</span>
+curl <span class="s2">"https://corporateclash.net/api/launcher/v1/register"</span> <span class="se">\</span>
+  <span class="nt">--json</span> <span class="s1">'{"username": "judge", "password": "", "friendly": "my 2022 laptop"}'</span>
+</code></pre></div>
+<blockquote>
+<p>JSON:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"reason"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"toonstep"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success!"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abcdefg1234567890abcdefg1234567890abcdefg1234567890"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>This endpoint registers a launcher with a user&#39;s account for persistent login access.</p>
+<h3 id='http-request-3'>HTTP Request</h3>
+<p><code>POST https://corporateclash.net/api/launcher/v1/register</code></p>
+
+<p>JSON post body:</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>username</td>
+<td>string</td>
+<td>The username for the account</td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+<td>The password for the account</td>
+</tr>
+<tr>
+<td>friendly</td>
+<td>string</td>
+<td>A name the user can refer to this launcher/computer as. Will be referenced in the launcher confirmation email and website account page.</td>
+</tr>
+</tbody></table>
+<h3 id='return-object-3'>Return Object</h3>
+<p>Returns <strong>an array</strong> of district objects, defined as:</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>status</td>
+<td>boolean</td>
+<td>Whether or not token issuance was a success</td>
+</tr>
+<tr>
+<td>reason</td>
+<td>string</td>
+<td>An integer indicating the failure reason/where in our backend this failed. Feel free to show it to the user, however, what these codes mean is not public.</td>
+</tr>
+<tr>
+<td>toonstep</td>
+<td>boolean</td>
+<td>Whether or not this operation failed due to toonstep.</td>
+</tr>
+<tr>
+<td>message</td>
+<td>string</td>
+<td>Text indicicating why this operation failed or succeeded</td>
+</tr>
+<tr>
+<td>token</td>
+<td>string</td>
+<td>The login token to be used in future requests.</td>
+</tr>
+<tr>
+<td>id</td>
+<td>integer?</td>
+<td>A unique ID for this launcher. It is recommended to display this to the user in case they need to audit launcher access on their account.</td>
+</tr>
+</tbody></table>
+
+<p>The token and username should be stored somewhere on the user&#39;s computer. If possible, try utilizing a built-in secret store or data protection API for the launcher platform you&#39;re targeting, eg <a href="https://developer.apple.com/documentation/security/keychain_services">KeyChain on MacOS</a> or the <a href="https://docs.microsoft.com/en-us/windows/win32/secauthn/credentials-management">Windows Credential Store</a>. Otherwise, storing it in a configuration folder for your application is fine.</p>
+<h2 id='launcher-errors-when-token-is-revoked'>Launcher errors when token is revoked</h2>
+<blockquote>
+<p>JSON:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unauthorized"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"bad_token"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Your API requests will fail with a <code>401</code> status and this response if it&#39;s ever revoked via the website (eg. on the account page or via a password reset).</p>
+<h3 id='return-object-4'>Return Object</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>error</td>
+<td>boolean</td>
+<td>Error message</td>
+</tr>
+<tr>
+<td>bad_token</td>
+<td>boolean</td>
+<td>Whether or not the token is invalid</td>
+</tr>
+</tbody></table>
+<h2 id='post-login'>POST Login</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">token</span> <span class="o">=</span> <span class="s">'abcdefg1234567890abcdefg1234567890abcdefg1234567890'</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">"https://corporateclash.net/api/launcher/v1/login"</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+    <span class="s">'Authorization'</span><span class="p">:</span> <span class="sa">f</span><span class="s">'Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s">'</span>
+<span class="p">})</span>
+
+</code></pre></div><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST <span class="s2">"https://corporateclash.net/api/launcher/v1/login"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s1">'Authorization: Bearer abcdefg1234567890abcdefg1234567890abcdefg1234567890'</span>
+</code></pre></div>
+<blockquote>
+<p>JSON:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"toonstep"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Welcome back to Toontown, judge!"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0987654321gfedcba0987654321gfedcba0987654321gfedcba"</span><span class="p">,</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>This endpoint allows logging into the game.</p>
+<h3 id='http-request-4'>HTTP Request</h3>
+<p><code>POST https://corporateclash.net/api/launcher/v1/login</code></p>
+
+<p>Headers to include in your post request:</p>
+
+<table><thead>
+<tr>
+<th>Header</th>
+<th>Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Authorization</td>
+<td>The user&#39;s token in bearer format</td>
+</tr>
+</tbody></table>
+<h3 id='return-object-5'>Return Object</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>status</td>
+<td>boolean</td>
+<td>Whether or not logging in was successful</td>
+</tr>
+<tr>
+<td>success</td>
+<td>boolean</td>
+<td>Same as status</td>
+</tr>
+<tr>
+<td>toonstep</td>
+<td>boolean</td>
+<td>Whether or not this operation failed due to toonstep</td>
+</tr>
+<tr>
+<td>message</td>
+<td>string</td>
+<td>Text indicicating why this operation failed or succeeded</td>
+</tr>
+<tr>
+<td>token</td>
+<td>string</td>
+<td>a temporary login token that allows access into the game under the user&#39;s account</td>
+</tr>
+</tbody></table>
+
+<p>After logging in, you should start the game process with the following environment variables:</p>
+
+<table><thead>
+<tr>
+<th>Environment Variable</th>
+<th>Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>TT_GAMESERVER</td>
+<td>gs.corporateclash.net</td>
+</tr>
+<tr>
+<td>TT_PLAYCOOKIE</td>
+<td>the <code>token</code> above</td>
+</tr>
+</tbody></table>
+<h2 id='get-metadata'>GET Metadata</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">token</span> <span class="o">=</span> <span class="s">'abcdefg1234567890abcdefg1234567890abcdefg1234567890'</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"https://corporateclash.net/api/launcher/v1/metadata"</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+    <span class="s">'Authorization'</span><span class="p">:</span> <span class="sa">f</span><span class="s">'Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s">'</span>
+<span class="p">})</span>
+
+</code></pre></div><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="s2">"https://corporateclash.net/api/launcher/v1/metadata"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s1">'Authorization: Bearer abcdefg1234567890abcdefg1234567890abcdefg1234567890'</span>
+</code></pre></div>
+<blockquote>
+<p>JSON:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"acc_launcher_friendly"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my 2022 laptop"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"acc_launcher_authorization_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"production_servers"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+  </span><span class="nl">"production_servers_v2"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AWS"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"realm"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"base_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://aws1.corporateclash.net/productionv2/"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"v2"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"production_windows_manifest_v2_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://corporateclash.net/api/v1/launcher/manifest/v2/windows_production.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"production_macos_manifest_v2_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://corporateclash.net/api/v1/launcher/manifest/v2/macos_production.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"production_resources_manifest_v2_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://corporateclash.net/api/v1/launcher/manifest/v2/resources_production.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"access_qa"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"qa_windows_manifest_v2_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"qa_macos_manifest_v2_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"qa_resources_manifest_v2_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"qa_manifest_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"qa_salt"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"qa_hostname"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"qa_servers"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+  </span><span class="nl">"qa_servers_v2"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+  </span><span class="nl">"bad_token"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>This endpoint provides metadata. </p>
+<h3 id='http-request-5'>HTTP Request</h3>
+<p><code>POST https://corporateclash.net/api/launcher/v1/metadata</code></p>
+
+<p>Headers to include in your post request:</p>
+
+<table><thead>
+<tr>
+<th>Header</th>
+<th>Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Authorization</td>
+<td>The user&#39;s token in bearer format</td>
+</tr>
+</tbody></table>
+<h3 id='return-object-6'>Return Object</h3>
+<p>Provides information for downloading files from the game. Further documentation of our entire asset distribution scheme will become available at a later date. </p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>acc_launcher_friendly</td>
+<td>string</td>
+<td>The launcher&#39;s <code>friendly</code> value, same as register</td>
+</tr>
+<tr>
+<td>acc_launcher_authorization_id</td>
+<td>integer</td>
+<td>The launcher&#39;s ID, same as register</td>
+</tr>
+<tr>
+<td>production_servers</td>
+<td>array</td>
+<td>Array of servers.</td>
+</tr>
+<tr>
+<td>production_servers_v2</td>
+<td>array</td>
+<td>Array of servers.</td>
+</tr>
+<tr>
+<td>production_windows_manifest_v2_url</td>
+<td>string</td>
+<td>Manifest URL</td>
+</tr>
+<tr>
+<td>production_macos_manifest_v2_url</td>
+<td>string</td>
+<td>Manifest URL</td>
+</tr>
+<tr>
+<td>production_resources_manifest_v2_url</td>
+<td>string</td>
+<td>Manifest URL</td>
+</tr>
+<tr>
+<td>(qa fields)</td>
+<td>(misc)</td>
+<td>Misc QA fields.</td>
+</tr>
+<tr>
+<td>bad_token</td>
+<td>boolean</td>
+<td>Whether or not the token is bad. An authentication check is performed on this API so this should always be false.</td>
+</tr>
+</tbody></table>
+<h2 id='post-revoke-current-token'>POST Revoke Current Token</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">token</span> <span class="o">=</span> <span class="s">'abcdefg1234567890abcdefg1234567890abcdefg1234567890'</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">"https://corporateclash.net/api/launcher/v1/revoke_self"</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+    <span class="s">'Authorization'</span><span class="p">:</span> <span class="sa">f</span><span class="s">'Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s">'</span>
+<span class="p">})</span>
+
+</code></pre></div><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST <span class="s2">"https://corporateclash.net/api/launcher/v1/revoke_self"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s1">'Authorization: Bearer abcdefg1234567890abcdefg1234567890abcdefg1234567890'</span>
+</code></pre></div>
+<blockquote>
+<p>JSON:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"bad_token"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>This endpoint revokes the launcher authorization associated with the token sent in the Authorization header.</p>
+<h3 id='http-request-6'>HTTP Request</h3>
+<p><code>POST https://corporateclash.net/api/launcher/v1/revoke_self</code></p>
+
+<p>Headers to include in your post request:</p>
+
+<table><thead>
+<tr>
+<th>Header</th>
+<th>Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Authorization</td>
+<td>The user&#39;s token in bearer format</td>
+</tr>
+</tbody></table>
+<h3 id='return-object-7'>Return Object</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>status</td>
+<td>boolean</td>
+<td>Whether or not recovation was successful</td>
+</tr>
+<tr>
+<td>bad_token</td>
+<td>boolean</td>
+<td>Whether or not the token was bad already</td>
+</tr>
+</tbody></table>
+
+<p>After running this, the token will no longer work for any APIs.</p>
 <h1 id='errors'>Errors</h1>
 <table><thead>
 <tr>
