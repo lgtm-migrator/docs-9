@@ -42,7 +42,7 @@ data is safe and our services are protected from abuse, which will keep our cost
 user-agent: MyCoolSite/1.0.0
 ```
 
-> If you'd like to include extra info, feel free, but keep it under 80 characters:
+> If you'd like to include extra info, feel free, but keep it under 100 characters:
 
 ```
 user-agent: example.com/1.0.0 python-requests/2.27.1
